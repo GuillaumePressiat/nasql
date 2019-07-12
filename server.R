@@ -23,13 +23,21 @@ function(input, output) {
         lib = FALSE,
         progress = FALSE
       )
-      
+
       if (!input$monet){
-      r <- irsa(p, typi   = 6) %>% #$rsa
+        withProgress(
+          message="Import des données",{
+            incProgress(1/3, detail="Import des rsa")
+      r <- irsa(p, typi   = 6) 
+      
+        incProgress(1/3, detail="Préparation des RSA")
+        r <- r %>%
         prepare_rsa()
       
+      incProgress(1/3, detail="Ajout des NAS")
       r$rsa <- r$rsa %>%
         inner_tra(itra(p))
+          })
       }
       # if (input$monet){
       #   con <- MonetDBLite::src_monetdblite(dbdir = input$path, create = FALSE)
@@ -57,8 +65,11 @@ function(input, output) {
      
      
      liste_r <- purrr::map(input$requ, get_liste)
-     
+     withProgress(
+       message="Requêtes en cours...",{
+         incProgress(1, detail="")
      r2 <- lancer_requete(df(), liste_r, vars = c('nohop', 'nas', 'duree', 'diags', 'actes', 'ghm', 'agean', 'rsatype'))
+       })
      
      return(r2)})
      
