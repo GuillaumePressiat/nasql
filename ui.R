@@ -20,15 +20,10 @@ for (i in th){
 #   as_tibble() %>%
 #   filter(row_number() == 0)
 
-library(shiny)
-library(shinydashboard)
-library(shinydashboardPlus)
-library(plotly)
-library(editData)
-# lr <- temp
 
 dashboardPagePlus(
   
+
   
   dashboardHeaderPlus(title="Find my NASql", #titleWidth = 350,   
                       enable_rightsidebar = TRUE,

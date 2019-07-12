@@ -1,16 +1,10 @@
-
-options(shiny.maxRequestSize=100*1024^2) 
-library(pmeasyr)
-library(dplyr)
-
-#input <- list(finess = '750712184', anno = 2019, mese1 = 5, path = '~/Documents/data/mco/')
-# listes_api <- referime::get_table('listes_api')
-listes_api <- referime::get_table('listes_api') %>%
-  filter(row_number() < 1)
+# listes_api <- referime::get_table('listes_api') %>%
+#   filter(row_number() < 1)
 
 function(input, output) { 
   
-
+  listes_api <- struc_listes()
+  
   df <- eventReactive(input$button_i, {
     
     if (is.null(input$button_i)){ return(NULL)}
@@ -94,11 +88,14 @@ function(input, output) {
       plotly::ggplotly()
   }) 
   output$p2 <- renderPlotly({
+    if (nrow(df_requ())){
     ggplot(data = df_requ(), aes(x = duree, fill = rsatype)) + geom_bar() + coord_flip() +
       ggthemes::scale_fill_pander() +
       facet_wrap(~ Requete) + 
       theme_light()
+      
       plotly::ggplotly()
+    }
   }) 
 
 
