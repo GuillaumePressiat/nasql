@@ -32,14 +32,9 @@ dashboardPagePlus(
     #width = 350,
     sidebarMenu(
       id="menuchoice",
-      menuItem("Rsa explore", tabName="app"),
+      menuItem("Rsa import / explore", tabName="app"),
       menuItem("Librairie de requêtes", tabName="app2"),
-      menuItem("Requête saisie", tabName="app3")), shinyWidgets::actionBttn(
-        inputId = "button_i",
-        label = "Importer les rsa",
-        style = "float", 
-        color = "success", size = "s"
-      )),
+      menuItem("Requête saisie", tabName="app3"))),
   
   
   
@@ -122,7 +117,13 @@ dashboardPagePlus(
     fluidRow(
       tabItems(
         tabItem(tabName = "app", 
-                  shinydashboard::box(h5(textOutput("nb_rsa")),
+                shinydashboard::box(shinyWidgets::actionBttn(
+                  inputId = "button_i",
+                  label = "Importer les rsa",
+                  style = "float", 
+                  color = "success", size = "s"
+                ), em('Il est possible de choisir les paramètres en affichant la barre latérale droite'),
+                h5(textOutput("nb_rsa")),
                 plotlyOutput('p1'), 
                 width = 12, solidHeader = TRUE, collapsible = TRUE, 
                 collapsed = FALSE, title = "Description des rsa", status = "primary"),

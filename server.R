@@ -74,7 +74,9 @@ function(input, output) {
 
   output$rsa_requ <- renderDataTable({
     df_requ() }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(dom = 'Blfrtip', buttons = c('copy', 'csv', 'excel', 'colvis')
+    options = list(dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'colvis'), 
+                   scrollY = 600, scrollX = TRUE,
+                   scroller = TRUE, server = TRUE
     ))
   
   output$nb_requ <- renderText({paste0("Il reste ", nrow(df_requ()), ' rsa suite à ces requêtes')})
@@ -150,10 +152,10 @@ function(input, output) {
     
     output$rsa_requ_main <- renderDataTable({
       df_requ_adhoc()}, rownames=FALSE, extensions = 'Buttons', filter = 'top',
-      options = list(lengthChange = FALSE, dom = 'Bfrtip',
+      options = list(dom = 'Bfrtip',
                      buttons = c('copy', 'excel', 'colvis'),
                      scrollY = 600, scrollX = TRUE,
-                     scroller = TRUE, server = FALSE))
+                     scroller = TRUE, server = TRUE))
 
 }
 
