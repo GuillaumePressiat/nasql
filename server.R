@@ -4,10 +4,13 @@ library(pmeasyr)
 library(dplyr)
 
 #input <- list(finess = '750712184', anno = 2019, mese1 = 5, path = '~/Documents/data/mco/')
+# listes_api <- referime::get_table('listes_api')
+listes_api <- referime::get_table('listes_api') %>%
+  filter(row_number() < 1)
 
 function(input, output) { 
   
-  
+
   df <- eventReactive(input$button_i, {
     
     if (is.null(input$button_i)){ return(NULL)}
@@ -97,7 +100,64 @@ function(input, output) {
       theme_light()
       plotly::ggplotly()
   }) 
+
+
+  dfw = callModule(editableDT, "table1", dataname = reactive(input$mydata), inputwidth=reactive(500))
   
+
+  output$test=renderTable({
+    dfw()
+  })
+  
+  # df_requ_adhoc <- eventReactive(input$lance_r2, {
+    df_requ_adhoc <- eventReactive(input$lance_r2, {
+    # cat('ok\n')
+    ttabb <- dfw()
+    # cat('ok\n')
+    # 
+    # return(ttabb)
+    #ttabb <- u[122:123,]
+    jsonify <- function(i) {
+      temp <- ttabb[i,]
+      as.list(as.data.frame(temp)) ->temp2
+      temp2$diags <- stringr::str_split(temp2$diags, "\\, ", simplify = T)[1,]
+      temp2$ghm_exclus <- stringr::str_split(temp2$ghm_exclus, "\\, ", simplify = T)[1,]
+      temp2$ghm <- stringr::str_split(temp2$ghm, "\\, ", simplify = T)[1,]
+      temp2$actes <- stringr::str_split(temp2$actes, "\\, ", simplify = T)[1,]
+      temp2[is.na(temp2)] <- NULL
+      temp2[temp2 == ""] <- NULL
+      temp2
+    }
+    
+    
+    if (nrow(ttabb) > 0){
+     lrbis <- 1:nrow(ttabb) %>% purrr::map(jsonify) %>% rlist::list.append()
+    
+    #return(lrbis)
+     
+    #return(requete(df(), list(thematique = "", requete = "", nom = "", actes = 'EBLA003')))
+    return(requete(df(), lrbis[[1]], vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean')))
+     # return(lancer_requete(df(), lrbis))
+    }
+    # } else {
+    # NULL
+    # }
+    
+    #return(lancer_requete(df(), lrbis))
+    # } else {
+    #   return(tibble(nok = "nok ::"))
+    #}
+    
+  })
+    #output$rsa_requ_main <- renderPrint({print(df_requ_adhoc()[[1]]$actes)})
+    
+    output$rsa_requ_main <- renderDataTable({
+      df_requ_adhoc()}, rownames=FALSE, extensions = 'Buttons', filter = 'top',
+      options = list(lengthChange = FALSE, dom = 'Bfrtip',
+                     buttons = c('copy', 'excel', 'colvis'),
+                     scrollY = 600, scrollX = TRUE,
+                     scroller = TRUE, server = FALSE))
+
 }
 
 
