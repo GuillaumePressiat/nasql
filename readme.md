@@ -11,11 +11,11 @@
 ![capture2](capture2.JPG)
 
 ##### Requêtage via la saisie d'une requête
-![capture3](capture3.JPG)
+![capture4](capture4.JPG)
 
 Exemple ici avec l'acte NFKA008
 
-![capture4](capture4.JPG)
+![capture5](capture5.JPG)
 
 Et un dégradé de couleurs en arrière plan
 
