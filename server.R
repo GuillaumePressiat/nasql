@@ -5,9 +5,56 @@ function(input, output) {
   
   listes_api <- struc_listes()
   
+  
+  l <- observeEvent(input$button_a1,{
+    if (input$button_a1){
+      p <- noyau_pmeasyr(
+        finess = as.character(input$finess),
+        annee  = as.integer(input$annee),
+        mois   = as.integer(input$mois),
+        path   = input$path,
+        n_max = input$max_rows,
+        tolower_names = TRUE,
+        lib = FALSE,
+        progress = FALSE
+      )
+      withProgress(
+        message="Dézippage des fichiers",{
+          incProgress(1/1, detail="Dézippage")
+      adezip(p, type = "out")
+        })
+
+    }
+    return(NULL)
+    })
+    
+    l2 <- observeEvent(input$button_a0,{
+    if (input$button_a0){
+      p <- noyau_pmeasyr(
+        finess = as.character(input$finess),
+        annee  = as.integer(input$annee),
+        mois   = as.integer(input$mois),
+        path   = input$path,
+        n_max = input$max_rows,
+        tolower_names = TRUE,
+        lib = FALSE,
+        progress = FALSE
+      )
+      withProgress(
+        message="Suppression des fichiers",{
+          incProgress(1/1, detail="Efface files")
+      adelete(p)
+        })
+
+    }
+    return(NULL)
+      }
+    )
+      
   df <- eventReactive(input$button_i, {
     
     if (is.null(input$button_i)){ return(NULL)}
+    
     
     if (input$button_i){
       p <- noyau_pmeasyr(
@@ -34,7 +81,53 @@ function(input, output) {
       incProgress(1/3, detail="Ajout des NAS")
       r$rsa <- r$rsa %>%
         inner_tra(itra(p))
+
           })
+        if (!grepl('Recette', input$checkgroup3)){
+          r$valo <- tibble(cle_rsa = "", type_fin = 0, rec_totale = 0, rec_bee = 0, rec_exb = 0)
+        } 
+        
+        if ('Recette BEE' %in% input$checkgroup3){
+          withProgress(
+            message="Imports pour la valorisation",{
+          incProgress(1/2, detail="Import rsa pour la valo")
+          # r$rsa_v <- vvr_rsa(p)
+          # r$ano <- vvr_ano_mco(p)
+          tarifs_ghs <- dplyr::distinct(get_table('tarifs_mco_ghs'), ghs, anseqta, .keep_all = TRUE)
+          
+          vrsa <- vvr_rsa(p)
+          incProgress(1/2, detail="Import ano pour la valo")
+          vano <- vvr_ano_mco(p)
+            
+          
+          r$valo <- vvr_mco(
+            vvr_ghs_supp(rsa = vrsa, ano =  vano, tarifs = tarifs_ghs),
+            vvr_mco_sv(vrsa, vano)
+          ) %>% 
+            inner_join(r$rsa %>% select(cle_rsa, nas, nohop))
+            })
+        }          
+        if ('Recette BEE + suppléments' %in% input$checkgroup3){
+          withProgress(
+            message="Imports pour la valorisation",{
+              incProgress(1/2, detail="Import rsa pour la valo")
+              # r$rsa_v <- vvr_rsa(p)
+              # r$ano <- vvr_ano_mco(p)
+              tarifs_ghs <- dplyr::distinct(get_table('tarifs_mco_ghs'), ghs, anseqta, .keep_all = TRUE)
+              
+              vrsa <- vvr_rsa(p)
+              incProgress(1/2, detail="Import ano pour la valo")
+              vano <- vvr_ano_mco(p)
+              
+              
+              r$valo <- vvr_mco(
+                vvr_ghs_supp(rsa = vrsa, ano =  vano, tarifs = tarifs_ghs,
+                             supplements = get_table('tarifs_mco_supplements'), bee = FALSE, full = TRUE),
+                vvr_mco_sv(vrsa, vano)) %>%  # , porg = ipo(p)
+                inner_join(r$rsa %>% select(cle_rsa, nas, nohop))
+            })
+        }       
+
       }
       # if (input$monet){
       #   con <- MonetDBLite::src_monetdblite(dbdir = input$path, create = FALSE)
@@ -45,6 +138,26 @@ function(input, output) {
     }
   })
 
+  
+  
+  output$sv <-  renderDataTable({
+    df()$valo %>% epmsi_mco_sv()}, 
+      rownames=FALSE, extensions = 'Buttons', filter = 'top', 
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+                   buttons = c('copy', 'excel', 'colvis'),
+                   scrollY = 200, scrollX = TRUE,
+                   scroller = TRUE, server = FALSE)
+  )
+  
+  output$rav <-  renderDataTable({
+    #%>% select(cle_rsa)
+    df()$valo %>% epmsi_mco_rav() }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+                   buttons = c('copy', 'excel', 'colvis'),
+                   scrollY = 400, scrollX = TRUE,
+                   scroller = TRUE, server = FALSE)# , server = TRUE
+  )
+  
   output$rsa <-  renderDataTable({
     #%>% select(cle_rsa)
     df()$rsa }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
@@ -54,7 +167,14 @@ function(input, output) {
                    scroller = TRUE, server = FALSE)# , server = TRUE
   )
 
-  
+  output$rsa_valo <-  renderDataTable({
+    #%>% select(cle_rsa)
+    df()$valo }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+                   buttons = c('copy', 'excel', 'colvis'),
+                   scrollY = 600, scrollX = TRUE,
+                   scroller = TRUE, server = FALSE)# , server = TRUE
+  )
   
    df_requ <- eventReactive(input$lance_r, {
      
@@ -149,14 +269,105 @@ function(input, output) {
     
   })
     #output$rsa_requ_main <- renderPrint({print(df_requ_adhoc()[[1]]$actes)})
+    lum <- nomensland::get_table('lib_mco_um') %>%
+      mutate(libelle_code_um2_abrege = ifelse(code_um2 == '29', 'Méd adultes', libelle_code_um2_abrege)) %>%
+      mutate(libelle_code_um2_abrege = ifelse(code_um2 == '52', 'Chir péd', libelle_code_um2_abrege)) %>%
+      mutate(libelle_code_um2_abrege = ifelse(code_um2 == '53', 'Chir ad', libelle_code_um2_abrege))
+    
     
     output$rsa_requ_main <- renderDataTable({
       df_requ_adhoc()}, rownames=FALSE, extensions = 'Buttons', filter = 'top',
       options = list(dom = 'Bfrtip',
                      buttons = c('copy', 'excel', 'colvis'),
                      scrollY = 600, scrollX = TRUE,
-                     scroller = TRUE, server = TRUE))
+                     scroller = TRUE, server = TRUE, pageLength = 400))
 
+    custom.message = "function (d) {
+root = d;
+while (root.parent) {
+root = root.parent
+}
+p = (100*d.value/root.value).toPrecision(2);
+msg = '<small>' + p+' %<br/>'+d.value+ ' rsa' + '</small>';
+return msg;
+}"
+
+
+    output$parc_req <- renderDataTable({
+      
+      u <-  df_requ() %>%
+        inner_join(df()$rsa_um, by = 'cle_rsa') %>%
+        mutate(um = substr(typaut1,1,2)) %>%
+        left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
+        distinct(cle_rsa, libelle_code_um2_abrege) %>%
+        group_by(cle_rsa) %>%
+        summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
+        count(lums) %>%
+        ungroup() %>%
+        as.data.frame() %>%
+        arrange(desc(n))
+      u
+      
+    }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
+    options = list(lengthChange = TRUE, dom = 'Bfrtip', 
+                   buttons = c('copy', 'excel', 'colvis'),
+                   scrollY = 600, scrollX = TRUE,
+                   scroller = TRUE, server = FALSE, pageLength = 400))
+    
+    output$parc_rsa <- renderDataTable({
+
+      u <- df()$rsa_um %>%
+        mutate(um = substr(typaut1,1,2)) %>%
+        left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
+        distinct(cle_rsa, libelle_code_um2_abrege) %>%
+        group_by(cle_rsa) %>%
+        summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
+        count(lums) %>%
+        ungroup() %>%
+        as.data.frame() %>%
+        arrange(desc(n))
+      u
+      
+    }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+                   buttons = c('copy', 'excel', 'colvis'),
+                   scrollY = 600, scrollX = TRUE,
+                   scroller = TRUE, server = FALSE, pageLength = 400))
+    
+   output$parc_req_sun <- sunburstR::renderSunburst({
+     
+      u <- df_requ() %>%
+        inner_join(df()$rsa_um, by = 'cle_rsa') %>%
+        mutate(um = substr(typaut1,1,2)) %>%
+        left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
+        distinct(cle_rsa, libelle_code_um2_abrege) %>%
+        group_by(cle_rsa) %>%
+        summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
+        count(lums) %>%
+        ungroup() %>%
+        as.data.frame()
+        
+      u %>%
+        sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200))
+    })
+   
+      output$parc_rsa_sun <- sunburstR::renderSunburst({
+     u <- df()$rsa_um %>%
+       mutate(um = substr(typaut1,1,2)) %>%
+       left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
+       distinct(cle_rsa, libelle_code_um2_abrege) %>%
+       group_by(cle_rsa) %>%
+       summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
+       count(lums) %>%
+       ungroup() %>%
+       as.data.frame()
+     
+     u %>%
+       sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200))
+      # u %>%
+      #   sunburstR::sund2b()
+
+        })
 }
 
 
