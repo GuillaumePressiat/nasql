@@ -19,11 +19,11 @@ options(gsubfn.engine = "R")
 
 #input <- list(finess = '750712184', anno = 2019, mese1 = 5, path = '~/Documents/data/mco/')
 # listes_api <- referime::get_table('listes_api')
-dico_l <- nomensland::get_dictionnaire_listes()
-# nomensland::get_table('dictionnaire_listes')
+dico_l <- get_dictionnaire_listes()
+# get_table('dictionnaire_listes')
 
 struc_listes <- function(){
-  listes_api <- purrr::map(dico_l$nom_abrege, function(x){nomensland::get_liste(x)}) %>%
+  listes_api <- purrr::map(dico_l$nom_abrege, function(x){get_liste(x)}) %>%
     purrr::map_depth(1, names) %>%
     unlist() %>%
     unique()
@@ -34,3 +34,13 @@ struc_listes <- function(){
 }
 
 listes_api <- struc_listes()
+
+listes_api$nom <- "Requête Exemple"
+listes_api$abrege <- "exemple"
+listes_api$thematique <- "Thématique de l'exemple"
+listes_api$actes <- "EBLA003, EPLF002"
+listes_api$diags <- "E66"
+listes_api$positions_diags <- "toutes"
+listes_api$ghm_exclus <- "05K"
+listes_api$agemin <- "16"
+

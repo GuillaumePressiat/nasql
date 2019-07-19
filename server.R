@@ -250,12 +250,12 @@ function(input, output) {
     
     
     if (nrow(ttabb) > 0){
-     lrbis <- 1:nrow(ttabb) %>% purrr::map(jsonify) %>% rlist::list.append()
+     lrbis <- 1:nrow(ttabb) %>% purrr::map(jsonify) %>% rlist::list.append() %>% purrr::map(function(x)x)
     
     #return(lrbis)
      
     #return(requete(df(), list(thematique = "", requete = "", nom = "", actes = 'EBLA003')))
-    return(requete(df(), lrbis[[1]], vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean')))
+    return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean'))) #[[1]]
      # return(lancer_requete(df(), lrbis))
     }
     # } else {

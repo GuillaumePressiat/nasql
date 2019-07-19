@@ -3,21 +3,26 @@
 
 ##### Import des rsa facilité
 
-![capture0](capture0.JPG)
+![capture0](capture0.png)
 
-![capture1](capture1.JPG)
+![capture1](capture1.png)
+
+![capture2](capture2.png)
 
 ##### Requêtage via la librairie de requêtes de nomensland
-![capture2](capture2.JPG)
 
-##### Requêtage via la saisie d'une requête
-![capture4](capture4.JPG)
+![capture3](capture3.png)
 
-Exemple ici avec l'acte NFKA008
+##### Requêtage via la saisie de requêtes
 
-![capture5](capture5.JPG)
+![capture4](capture4.png)
 
-Et un dégradé de couleurs en arrière plan
 
-![capture3](capture3.JPG)
+##### La valorisation des rsa, et un dégradé de couleurs en arrière plan
+
+![capture5](capture5.png)
+
+##### Les parcours au travers des types d'autorisation des unités médicales
+
+![capture6](capture6.png)
 
