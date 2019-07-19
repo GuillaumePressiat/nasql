@@ -138,9 +138,30 @@ dashboardPagePlus(
                               )),
     rightSidebarTabContent(
       id = 2,
-      title = "Export de données",
+      useShinyjs(),
       icon = "file-export",
-      textInput("caption", "Caption", "Data Summary")
+      h5('Export des rsa requêtés'),
+      textInput("name_down1", "Nom du fichier", "mes_rsa_requetes"),
+      downloadButton('download11',"xls", class = "dowbut"),
+      downloadButton('download12',"json", class = "dowbut"),
+      downloadButton('download13',"csv", class = "dowbut"),
+      h5('Export des rsa requêtés par requête saisies'),
+       textInput("name_down2", "Nom du fichier", "mes_rsa_requetes_manuel"),
+      downloadButton('download21',"xls", class = "dowbut"),
+      downloadButton('download22',"json", class = "dowbut"),
+      downloadButton('download23',"csv", class = "dowbut"),
+      h5('Export des requêtes'),
+      textInput("name_down3", "Nom du fichier", "mes_requetes"),
+      downloadButton('download31',"xls", class = "dowbut"),
+      downloadButton('download32',"json", class = "dowbut"),
+      downloadButton('download33',"csv", class = "dowbut"),
+      h5('Export des rsa'),
+      p('contient les tables rsa, actes, diags, rsa_um, et valo'),
+      textInput("name_down4", "Nom du fichier", "mes_rsa"),
+      downloadButton('download41',"xls", class = "dowbut"),
+      downloadButton('download42',"json", class = "dowbut"),
+      downloadButton('download43',"csvzip", class = "dowbut"),
+      h6('*attention, les exports xls fonctionnent lorsque nrow < 65536...')
     )),
   dashboardBody(
     tags$head(tags$style(HTML('
@@ -165,7 +186,9 @@ dashboardPagePlus(
                                 .skin-blue .main-header .navbar {
                                 background-color: #383838;
                                 }
-
+                                
+                                .dowbut{font-size: 10px ;}
+                                
                                 /* main sidebar */
                                 .skin-blue .main-sidebar {
                                 background-color: #383838;
@@ -196,7 +219,7 @@ dashboardPagePlus(
                                 background: linear-gradient(to top left, #3c8dbc 0%, #a0522d 100%);
                                 }
 
-                                '))),
+                                '))), #--!important;
     fluidRow(
       tabItems(
         tabItem(tabName = "app", 

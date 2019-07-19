@@ -26,3 +26,7 @@
 
 ![capture6](capture6.png)
 
+##### Export des requêtes, des résultats des requêtes et des rsa aux formats xls, json et csv
+
+![capture7](capture7.png)
+

@@ -368,6 +368,114 @@ return msg;
       #   sunburstR::sund2b()
 
         })
+      
+      output$download11 <- downloadHandler(
+        filename = function(){paste0(input$name_down1, '.xls')}, 
+        content = function(fname){
+          WriteXLS::WriteXLS(df_requ(), fname)
+        })
+      
+      output$download12 <- downloadHandler(
+        filename = function(){paste0(input$name_down1, '.json')}, 
+        content = function(fname){
+          jsonlite::write_json(df_requ(), fname)
+        })
+      
+      output$download13 <- downloadHandler(
+        filename = function(){paste0(input$name_down1, '.csv')}, 
+        content = function(fname){
+          write.csv2(df_requ(), fname, row.names = FALSE, quote = TRUE)
+        })
+      
+      output$download21 <- downloadHandler(
+        filename = function(){paste0(input$name_down2, '.xls')}, 
+        content = function(fname){
+          WriteXLS::WriteXLS(df_requ_adhoc(), fname)
+        })
+      
+      output$download22 <- downloadHandler(
+        filename = function(){paste0(input$name_down2, '.json')}, 
+        content = function(fname){
+          jsonlite::write_json(df_requ_adhoc(), fname)
+        })
+      
+      output$download23 <- downloadHandler(
+        filename = function(){paste0(input$name_down2, '.csv')}, 
+        content = function(fname){
+          write.csv2(df_requ_adhoc(), fname, row.names = FALSE, quote = TRUE)
+        })
+
+      output$download31 <- downloadHandler(
+        filename = function(){paste0(input$name_down3, '.xls')}, 
+        content = function(fname){
+          WriteXLS::WriteXLS(dfw(), fname)
+        })
+      
+      output$download32 <- downloadHandler(
+        filename = function(){paste0(input$name_down3, '.json')}, 
+        content = function(fname){
+          jsonlite::write_json(dfw(), fname)
+        })
+      output$download33 <- downloadHandler(
+        filename = function(){paste0(input$name_down3, 'csv')}, 
+        content = function(fname){
+          write.csv2(dfw(), fname, row.names = FALSE, quote = TRUE)
+        })
+
+      output$download41 <- downloadHandler(
+        filename = function(){paste0(input$name_down4, '.xls')}, 
+        content = function(fname){
+          WriteXLS::WriteXLS(df(), fname)
+        })
+      
+      output$download42 <- downloadHandler(
+        filename = function(){paste0(input$name_down4, '.json')}, 
+        content = function(fname){
+          jsonlite::write_json(df(), fname)
+        })
+      
+        output$download43 <- downloadHandler(
+        filename = function(){paste0(input$name_down4, '.zip')},
+        content = function(fname) {
+          fs <- names(df())
+          tmpdir <- tempdir()
+          setwd(tempdir())
+          for (i in 1:length(fs)){
+            path <- paste0(input$name_down4, "_", fs[i] , ".csv")
+            #fs <- c(fs, path)
+            write.csv2(df()[[i]], path, quote = TRUE, row.names = FALSE)
+          }
+          zip(zipfile=fname, files=paste0(input$name_down4, '_', names(df()), '.csv'))
+        },
+        contentType = "application/zip"
+        )
+        # content = function(fname){
+        #   write.csv2(df()$rsa, fname, quote = TRUE, row.names = FALSE)
+        # })
+
+          observe({ 
+            if (any(lapply(df(), nrow) > 65535) | any(lapply(df(), ncol) > 256)) {
+              disable('download41')
+            } else {
+              enable('download41')
+            }
+          })
+          
+          observe({ 
+            if (any(nrow(df_requ_adhoc()) > 65535) | ncol(df_requ_adhoc()) > 256) {
+              disable('download21')
+            } else {
+              enable('download21')
+            }
+          })
+          
+          observe({
+            if (nrow(df_requ()) > 65535 | ncol(df_requ()) > 256){
+              disable('download11')
+            } else {
+              enable('download11')
+            }
+          })
 }
 
 

@@ -13,6 +13,7 @@ library(shinydashboardPlus)
 library(plotly)
 library(editData)
 library(nomensland)
+library(shinyjs)
 options(gsubfn.engine = "R")
 
 # lr <- temp
