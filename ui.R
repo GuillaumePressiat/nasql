@@ -86,18 +86,24 @@ dashboardPagePlus(
                           title = "Aide",
                           icon = "question-circle",
                           hr(),
-                          p('1.', icon('gears'), ' indiquer les paramètres à droite'),
-                          p('2.', icon('file-archive'), 'dézipper vos données'),
-                          p('3.', icon('database'), 'importer vos données'),
-                          p("4. Vous pouvez utiliser l'app", icon('frog'))))),
+                          tags$li('1.', icon('gears'), ' indiquer les paramètres à droite'),
+                          tags$li('2.', icon('file-archive'), 'dézipper vos données'),
+                          tags$li('3.', icon('database'), 'importer vos données'),
+                          tags$li("4. Vous pouvez utiliser l'app", icon('frog'), ' et :'),
+                          tags$li("a1. Requêter les données" , icon('filter')),
+                          tags$li("a2. Exporter et importer vos listes de requêtes ", icon('gears'), '>', icon('upload')),
+                          tags$li("b. Étudier les parcours" , icon('procedures')),
+                          tags$li("c. Calculer la valorisation" , icon('dollar')),
+                          tags$li("d. Exporter les données " , icon('gears'), '>', icon('file-export'))
+                        ))),
   
   sidebar = dashboardSidebar(
     #width = 350,
     sidebarMenu(
       id="menuchoice",
       menuItem(icon = icon("clipboard-check"), text  ="Rsa explore",  tabName="app"),
-      menuItem(icon = icon("filter"), text  ="Librairie de requêtes", tabName="app2"),
-      menuItem(icon = icon("mortar-pestle"), text  ="Requête saisie", tabName="app3"),
+      menuItem(icon = icon("filter"), text  ="Requêtes", tabName="app2"),
+      #menuItem(icon = icon("mortar-pestle"), text  ="Requête saisie", tabName="app3"),
       menuItem(icon = icon("dollar-sign"), text  = "Valorisation", tabName="app4"),
       menuItem(icon = icon("procedures"), text  = "Parcours", tabName="app5"))),
       #menuItem(icon = icon("leaf"), text  = "map", tabName="app6"))),
@@ -136,33 +142,58 @@ dashboardPagePlus(
                                 fgColor = "#3c8dbc",
                                 inputColor = "#3c8dbc"
                               )),
+    
     rightSidebarTabContent(
       id = 2,
+      icon = "upload",
+      h4('Import de requêtes'),
+      fileInput("filejson", "Choisir requête.json",
+                multiple = FALSE,
+                accept = c("application/json"))
+    ),
+    rightSidebarTabContent(
+      id = 3,
+      title = NULL,
       useShinyjs(),
       icon = "file-export",
-      h5('Export des rsa requêtés'),
-      textInput("name_down1", "Nom du fichier", "mes_rsa_requetes"),
-      downloadButton('download11',"xls", class = "dowbut"),
-      downloadButton('download12',"json", class = "dowbut"),
-      downloadButton('download13',"csv", class = "dowbut"),
-      h5('Export des rsa requêtés par requête saisies'),
-       textInput("name_down2", "Nom du fichier", "mes_rsa_requetes_manuel"),
-      downloadButton('download21',"xls", class = "dowbut"),
-      downloadButton('download22',"json", class = "dowbut"),
-      downloadButton('download23',"csv", class = "dowbut"),
-      h5('Export des requêtes'),
-      textInput("name_down3", "Nom du fichier", "mes_requetes"),
-      downloadButton('download31',"xls", class = "dowbut"),
-      downloadButton('download32',"json", class = "dowbut"),
-      downloadButton('download33',"csv", class = "dowbut"),
-      h5('Export des rsa'),
-      p('contient les tables rsa, actes, diags, rsa_um, et valo'),
-      textInput("name_down4", "Nom du fichier", "mes_rsa"),
-      downloadButton('download41',"xls", class = "dowbut"),
-      downloadButton('download42',"json", class = "dowbut"),
-      downloadButton('download43',"csvzip", class = "dowbut"),
-      h6('*attention, les exports xls fonctionnent lorsque nrow < 65536...')
-    )),
+      accordion(
+        accordionItem(
+          id = 10,
+          title = 'Requêtes',
+          collapsed = FALSE,
+          
+          h4('Export des rsa requêtés'),
+          h5('Via librairie de requêtes'),
+          textInput("name_down1", label = NULL, "mes_rsa_requetes"),
+          downloadButton('download11',"xls", class = "dowbut"),
+          downloadButton('download12',"json", class = "dowbut"),
+          downloadButton('download13',"csv", class = "dowbut"),
+          h5('Via requête saisies'),
+          textInput("name_down2", label = NULL, "mes_rsa_requetes_manuel"),
+          downloadButton('download21',"xls", class = "dowbut"),
+          downloadButton('download22',"json", class = "dowbut"),
+          downloadButton('download23',"csv", class = "dowbut"),
+          h5('Via requêtes importées'),
+          textInput("name_down5", label = NULL, "mes_rsa_requetes_importee"),
+          downloadButton('download51',"xls", class = "dowbut"),
+          downloadButton('download52',"json", class = "dowbut"),
+          downloadButton('download53',"csv", class = "dowbut"),
+          h4('Export des requêtes saisies'),
+          textInput("name_down3", label = NULL, "mes_requetes"),
+          downloadButton('download31',"xls", class = "dowbut"),
+          downloadButton('download32',"json", class = "dowbut"),
+          downloadButton('download33',"csv", class = "dowbut")),
+        accordionItem(
+          id = 11,
+          title = 'rsa',
+          collapsed = TRUE,
+          p('contient les tables rsa, actes, diags, rsa_um, et valo'),
+          textInput("name_down4", label = NULL, "mes_rsa"),
+          downloadButton('download41',"xls", class = "dowbut"),
+          downloadButton('download42',"json", class = "dowbut"),
+          downloadButton('download43',"csvzip", class = "dowbut"),
+          h6('*attention, les exports xls fonctionnent lorsque nrow < 65536...')
+        )))),
   dashboardBody(
     tags$head(tags$style(HTML('
                                 /* logo */
@@ -193,7 +224,9 @@ dashboardPagePlus(
                                 .skin-blue .main-sidebar {
                                 background-color: #383838;
                                 }
-
+                                .dataTables tbody tr {
+                                max-height: 35px; /* or whatever height you need to make them all consistent */
+                                }
                                 /* active selected tab in the sidebarmenu */
                                 .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
                                 background-color: #707070;
@@ -236,6 +269,11 @@ dashboardPagePlus(
         
         tabItem(tabName = "app2", 
                 shinydashboard::box(
+                accordion(
+                  accordionItem(
+                    id = 1,
+                    collapsed = FALSE,
+                    title = 'Librairie de requêtes',
                   # actionButton("button_i", "Importer les rsa !"),
                   selectizeInput("requ", "Requête", choices = as.list(lr), selected = "chip", multiple = TRUE),
                   # shinyWidgets::materialSwitch(label = "Requêtage actif", inputId = "lance_r", value = FALSE, right = TRUE)),
@@ -246,33 +284,42 @@ dashboardPagePlus(
                     color = "success", size = "xs"
                   ),
                   h5(textOutput("nb_requ")),
-                  plotlyOutput('p2'), 
-                  width = 12, solidHeader = TRUE, collapsible = TRUE, 
-                  collapsed = FALSE, title = "Description de ces rsa requêtés", status = "primary"),
-                shinydashboard::box(shinyWidgets::addSpinner(dataTableOutput("rsa_requ")), 
-                                    width = 12, solidHeader = TRUE, collapsible = TRUE, 
-                                    collapsed = FALSE, title = 'Rsa requêtés', status = "primary")),
-        tabItem(tabName = "app3", 
-                shinydashboard::box(
-                  textInput('mydata', label = 'Nom de la table', value = 'listes_api'),
-                  h5("Saisie / édition d'une requête"),
-                  editableDTUI("table1"),
-                  shinyWidgets::actionBttn(
-                    inputId = "lance_r2",
-                    label = "Lancer la requête",
-                    style = "float", 
-                    color = "success", size = "xs"),
-                  # verbatimTextOutput("rsa_requ_main"),
-                  dataTableOutput("rsa_requ_main"),
-                  width = 12, solidHeader = TRUE, collapsible = TRUE, 
-                  collapsed = FALSE, title = 'Saisir une requête ad hoc', status = "primary")    
-        ),
+                  plotlyOutput('p2'),
+                  #shinyWidgets::addSpinner(dataTableOutput("rsa_requ"))),
+                  dataTableOutput("rsa_requ")),
+                    accordionItem(
+                      id = 2,
+                      title = "Requêtes via saisie",
+                      textInput('mydata', label = 'Nom de la table', value = 'listes_api'),
+                      # h5("Saisie / édition d'une requête"),
+                      editableDTUI("table1"),
+                      hr(),
+                      shinyWidgets::actionBttn(
+                        inputId = "lance_r2",
+                        label = "Lancer la requête",
+                        style = "float", 
+                        color = "success", size = "xs"),
+                      # verbatimTextOutput("rsa_requ_main"),
+                      dataTableOutput("rsa_requ_main")),
+                    accordionItem(
+                      id = 3,
+                      title = "Requêtes importées",
+                      h6("L'import de requêtes se fait via un fichier json dans les menus à droite"),
+                      dataTableOutput('lib_requ_imports'),
+                      shinyWidgets::actionBttn(
+                        inputId = "lance_r3",
+                        label = "Lancer la requête",
+                        style = "float", 
+                        color = "success", size = "xs"),
+                      # verbatimTextOutput("rsa_requ_main"),
+                      dataTableOutput("rsa_requ_import"))), width = 12, solidHeader = TRUE, collapsible = TRUE,
+                collapsed = FALSE, title = 'Requêtes des rsa', status = "primary")),
         tabItem(tabName = "app4",
-                shinydashboard::box(shinyWidgets::addSpinner(dataTableOutput("sv")),
+                shinydashboard::box(dataTableOutput("sv"),
                                                                     width = 12, solidHeader = TRUE, collapsible = TRUE,
                                                                     collapsed = FALSE, title = 'epmsi SV', status = "primary"),#,
                 
-                shinydashboard::box(shinyWidgets::addSpinner(dataTableOutput("rav")),
+                shinydashboard::box(dataTableOutput("rav"),
                                     width = 12, solidHeader = TRUE, collapsible = TRUE,
                                     collapsed = FALSE, title = 'epmsi RAV', status = "primary"),
 
@@ -280,18 +327,16 @@ dashboardPagePlus(
                                     width = 12, solidHeader = TRUE, collapsible = TRUE,
                                     collapsed = TRUE, title = 'Rsa et leur valorisation', status = "primary")),
         tabItem(tabName = "app5",
-
-        shinydashboard::box(sunburstR::sunburstOutput("parc_rsa_sun"),
-                            shinyWidgets::addSpinner(dataTableOutput("parc_rsa")),
-        #shinydashboard::box(sunburstR::sund2bOutput("parc_rsa_sun"),
-                            width = 12, solidHeader = TRUE, collapsible = TRUE,
-                            collapsed = TRUE, title = 'Parcours global rsa', 
-        status = "primary"),
-        shinydashboard::box(sunburstR::sunburstOutput("parc_req_sun"),
-                            shinyWidgets::addSpinner(dataTableOutput("parc_req")),
+        shinydashboard::box(
+          radioButtons('parc_cible', label = "Données du parcours", 
+                        choices = c("RSA", 'via librairie de requêtes', 'via requête saisie',
+                                    'via requête importée'), inline = TRUE, choiceValues = NULL),
+          sunburstR::sunburstOutput("parc"),
+          dataTableOutput("parc_dat"),
+                            #shinyWidgets::addSpinner(dataTableOutput("parc_req")),
                             #shinydashboard::box(sunburstR::sund2bOutput("parc_rsa_sun"),
                             width = 12, solidHeader = TRUE, collapsible = TRUE,
-                            collapsed = FALSE, title = 'Parcours rsa requêtés', 
+                            collapsed = FALSE, title = 'Parcours', 
                             status = "primary"))#,
         #tabItem(tabName = "app6")
         ))))

@@ -223,10 +223,29 @@ function(input, output) {
 
   dfw = callModule(editableDT, "table1", dataname = reactive(input$mydata), inputwidth=reactive(500))
   
+  #librairie_manuelle <- eventReactive(input$filejson, {
+  librairie_import <- eventReactive(input$filejson, {
+    req(input$filejson)
+    
+    if (is.null(input$filejson)){return(dfw())}
+    
+    tryCatch(
+      {
+        dftemp <- jsonlite::read_json(input$filejson$datapath, simplifyVector = TRUE) %>%
+          as_tibble()
+      },
+      error = function(e) {
+        # return a safeError if a parsing error occurs
+        stop(safeError(e))
+      }
+    )
+    
+    dftemp
 
-  output$test=renderTable({
-    dfw()
   })
+  
+  
+  output$lib_requ_imports <- renderDataTable(librairie_import())
   
   # df_requ_adhoc <- eventReactive(input$lance_r2, {
     df_requ_adhoc <- eventReactive(input$lance_r2, {
@@ -258,16 +277,40 @@ function(input, output) {
     return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean'))) #[[1]]
      # return(lancer_requete(df(), lrbis))
     }
-    # } else {
-    # NULL
-    # }
+    })
     
-    #return(lancer_requete(df(), lrbis))
-    # } else {
-    #   return(tibble(nok = "nok ::"))
-    #}
-    
-  })
+    # df_requ_adhoc <- eventReactive(input$lance_r2, {
+    df_requ_import <- eventReactive(input$lance_r3, {
+      # cat('ok\n')
+      ttabb <- librairie_import()
+      # cat('ok\n')
+      # 
+      # return(ttabb)
+      #ttabb <- u[122:123,]
+      jsonify <- function(i) {
+        temp <- ttabb[i,]
+        as.list(as.data.frame(temp)) ->temp2
+        temp2$diags <- stringr::str_split(temp2$diags, "\\, ", simplify = T)[1,]
+        temp2$ghm_exclus <- stringr::str_split(temp2$ghm_exclus, "\\, ", simplify = T)[1,]
+        temp2$ghm <- stringr::str_split(temp2$ghm, "\\, ", simplify = T)[1,]
+        temp2$actes <- stringr::str_split(temp2$actes, "\\, ", simplify = T)[1,]
+        temp2[is.na(temp2)] <- NULL
+        temp2[temp2 == ""] <- NULL
+        temp2
+      }
+      
+      
+      if (nrow(ttabb) > 0){
+        lrbis <- 1:nrow(ttabb) %>% purrr::map(jsonify) %>% rlist::list.append() %>% purrr::map(function(x)x)
+        
+        #return(lrbis)
+        
+        #return(requete(df(), list(thematique = "", requete = "", nom = "", actes = 'EBLA003')))
+        return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean'))) #[[1]]
+        # return(lancer_requete(df(), lrbis))
+      }
+    })
+
     #output$rsa_requ_main <- renderPrint({print(df_requ_adhoc()[[1]]$actes)})
     lum <- nomensland::get_table('lib_mco_um') %>%
       mutate(libelle_code_um2_abrege = ifelse(code_um2 == '29', 'Méd adultes', libelle_code_um2_abrege)) %>%
@@ -281,7 +324,14 @@ function(input, output) {
                      buttons = c('copy', 'excel', 'colvis'),
                      scrollY = 600, scrollX = TRUE,
                      scroller = TRUE, server = TRUE, pageLength = 400))
-
+    
+    output$rsa_requ_import <- renderDataTable({
+      df_requ_import()}, rownames=FALSE, extensions = 'Buttons', filter = 'top',
+      options = list(dom = 'Bfrtip',
+                     buttons = c('copy', 'excel', 'colvis'),
+                     scrollY = 600, scrollX = TRUE,
+                     scroller = TRUE, server = TRUE, pageLength = 400))
+    
     custom.message = "function (d) {
 root = d;
 while (root.parent) {
@@ -293,30 +343,46 @@ return msg;
 }"
 
 
-    output$parc_req <- renderDataTable({
-      
-      u <-  df_requ() %>%
-        inner_join(df()$rsa_um, by = 'cle_rsa') %>%
-        mutate(um = substr(typaut1,1,2)) %>%
-        left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
-        distinct(cle_rsa, libelle_code_um2_abrege) %>%
-        group_by(cle_rsa) %>%
-        summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
-        count(lums) %>%
-        ungroup() %>%
-        as.data.frame() %>%
-        arrange(desc(n))
-      u
-      
-    }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(lengthChange = TRUE, dom = 'Bfrtip', 
-                   buttons = c('copy', 'excel', 'colvis'),
-                   scrollY = 600, scrollX = TRUE,
-                   scroller = TRUE, server = FALSE, pageLength = 400))
-    
-    output$parc_rsa <- renderDataTable({
 
-      u <- df()$rsa_um %>%
+data_for_parcours <- eventReactive(input$parc_cible, {
+  if (input$parc_cible == "RSA"){
+    return(df()$rsa %>% select(cle_rsa))
+  }
+  if (input$parc_cible == "via librairie de requêtes"){
+    return(df_requ())
+  }
+  if (input$parc_cible == "via requête saisie"){
+    return(df_requ_adhoc())
+  }
+  if (input$parc_cible == "via requête importée"){
+    return(df_requ_import())
+  }
+  
+})
+
+
+output$parc <- sunburstR::renderSunburst({
+  
+  u <- data_for_parcours() %>%
+    inner_join(df()$rsa_um, by = 'cle_rsa') %>%
+    mutate(um = substr(typaut1,1,2)) %>%
+    left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
+    distinct(cle_rsa, libelle_code_um2_abrege) %>%
+    group_by(cle_rsa) %>%
+    summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
+    count(lums) %>%
+    ungroup() %>%
+    as.data.frame()
+  
+  u %>%
+    sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200))
+})
+
+
+    output$parc_dat <- renderDataTable({
+
+      u <- data_for_parcours() %>%
+        inner_join(df()$rsa_um, by = 'cle_rsa') %>%
         mutate(um = substr(typaut1,1,2)) %>%
         left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
         distinct(cle_rsa, libelle_code_um2_abrege) %>%
@@ -334,40 +400,9 @@ return msg;
                    scrollY = 600, scrollX = TRUE,
                    scroller = TRUE, server = FALSE, pageLength = 400))
     
-   output$parc_req_sun <- sunburstR::renderSunburst({
-     
-      u <- df_requ() %>%
-        inner_join(df()$rsa_um, by = 'cle_rsa') %>%
-        mutate(um = substr(typaut1,1,2)) %>%
-        left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
-        distinct(cle_rsa, libelle_code_um2_abrege) %>%
-        group_by(cle_rsa) %>%
-        summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
-        count(lums) %>%
-        ungroup() %>%
-        as.data.frame()
-        
-      u %>%
-        sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200))
-    })
-   
-      output$parc_rsa_sun <- sunburstR::renderSunburst({
-     u <- df()$rsa_um %>%
-       mutate(um = substr(typaut1,1,2)) %>%
-       left_join(lum %>% select(code_um2, libelle_code_um2_abrege), by = c('um' = 'code_um2')) %>%
-       distinct(cle_rsa, libelle_code_um2_abrege) %>%
-       group_by(cle_rsa) %>%
-       summarise(lums = paste0(libelle_code_um2_abrege, collapse = "-")) %>%
-       count(lums) %>%
-       ungroup() %>%
-       as.data.frame()
-     
-     u %>%
-       sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200))
-      # u %>%
-      #   sunburstR::sund2b()
 
-        })
+   
+
       
       output$download11 <- downloadHandler(
         filename = function(){paste0(input$name_down1, '.xls')}, 
@@ -405,6 +440,24 @@ return msg;
           write.csv2(df_requ_adhoc(), fname, row.names = FALSE, quote = TRUE)
         })
 
+      output$download51 <- downloadHandler(
+        filename = function(){paste0(input$name_down2, '.xls')}, 
+        content = function(fname){
+          WriteXLS::WriteXLS(df_requ_import(), fname)
+        })
+      
+      output$download52 <- downloadHandler(
+        filename = function(){paste0(input$name_down2, '.json')}, 
+        content = function(fname){
+          jsonlite::write_json(df_requ_import(), fname)
+        })
+      
+      output$download53 <- downloadHandler(
+        filename = function(){paste0(input$name_down2, '.csv')}, 
+        content = function(fname){
+          write.csv2(df_requ_import(), fname, row.names = FALSE, quote = TRUE)
+        })
+      
       output$download31 <- downloadHandler(
         filename = function(){paste0(input$name_down3, '.xls')}, 
         content = function(fname){
@@ -476,6 +529,7 @@ return msg;
               enable('download11')
             }
           })
+          
 }
 
 
