@@ -142,8 +142,8 @@ function(input, output) {
   
   output$sv <-  renderDataTable({
     df()$valo %>% epmsi_mco_sv()}, 
-      rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+      rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', pageLength = 12,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 200, scrollX = TRUE,
                    scroller = TRUE, server = FALSE)
@@ -151,17 +151,17 @@ function(input, output) {
   
   output$rav <-  renderDataTable({
     #%>% select(cle_rsa)
-    df()$valo %>% epmsi_mco_rav() }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+    df()$valo %>% epmsi_mco_rav() }, rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', pageLength = 20,
                    buttons = c('copy', 'excel', 'colvis'),
-                   scrollY = 400, scrollX = TRUE,
+                   scrollY = 300, scrollX = TRUE,
                    scroller = TRUE, server = FALSE)# , server = TRUE
   )
   
   output$rsa <-  renderDataTable({
     #%>% select(cle_rsa)
-    df()$rsa }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+    df()$rsa }, rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    options = list(lengthChange = FALSE, dom = 'Bfrtip',  pageLength = 100,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 600, scrollX = TRUE,
                    scroller = TRUE, server = FALSE)# , server = TRUE
@@ -169,12 +169,11 @@ function(input, output) {
 
   output$rsa_valo <-  renderDataTable({
     #%>% select(cle_rsa)
-    df()$valo }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(lengthChange = FALSE, dom = 'Bfrtip', 
+    datatable(df()$valo , rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    options = list(lengthChange = FALSE, dom = 'Bfrtip', pageLength = 100,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 600, scrollX = TRUE,
-                   scroller = TRUE, server = FALSE)# , server = TRUE
-  )
+                   scroller = TRUE, server = FALSE))})
   
    df_requ <- eventReactive(input$lance_r, {
      
@@ -185,7 +184,8 @@ function(input, output) {
      withProgress(
        message="Requêtes en cours...",{
          incProgress(1, detail="")
-     r2 <- lancer_requete(df(), liste_r, vars = c('nohop', 'nas', 'duree', 'diags', 'actes', 'ghm', 'agean', 'rsatype'))
+     r2 <- lancer_requete(df(), liste_r, vars = c('nohop', 'nas', 'duree', 'diags', 'actes', 'ghm', 'agean', 'rsatype')) %>% 
+                            select(Thematique, Requete, everything())
        })
      
      return(r2)})
@@ -193,11 +193,12 @@ function(input, output) {
 
 
   output$rsa_requ <- renderDataTable({
-    df_requ() }, rownames=FALSE, extensions = 'Buttons', filter = 'top', 
-    options = list(dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'colvis'), 
+    datatable(df_requ(), rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    options = list(dom = 'Bfrtip',
+                   buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 600, scrollX = TRUE,
-                   scroller = TRUE, server = TRUE
-    ))
+                   scroller = TRUE, server = TRUE, pageLength = nrow(df_requ()))) %>%
+    formatStyle(0, target= 'row', lineHeight='80%')})
   
   output$nb_requ <- renderText({paste0("Il reste ", nrow(df_requ()), ' rsa suite à ces requêtes')})
   output$nb_rsa <- renderText({paste0("", nrow(df()$rsa), ' rsa importés, fichier : ', input$finess, '.', input$annee, '.', input$mois, '.rsa')})
@@ -274,7 +275,8 @@ function(input, output) {
     #return(lrbis)
      
     #return(requete(df(), list(thematique = "", requete = "", nom = "", actes = 'EBLA003')))
-    return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean'))) #[[1]]
+    return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean')) %>% 
+             select(Thematique, Requete, everything())) #[[1]]
      # return(lancer_requete(df(), lrbis))
     }
     })
@@ -306,7 +308,8 @@ function(input, output) {
         #return(lrbis)
         
         #return(requete(df(), list(thematique = "", requete = "", nom = "", actes = 'EBLA003')))
-        return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean'))) #[[1]]
+        return(lancer_requete(df(), lrbis, vars = c('nohop', 'nas', 'ghm', 'actes', 'diags', 'duree', 'agean')) %>% 
+                 select(Thematique, Requete, everything())) #[[1]]
         # return(lancer_requete(df(), lrbis))
       }
     })
@@ -319,18 +322,20 @@ function(input, output) {
     
     
     output$rsa_requ_main <- renderDataTable({
-      df_requ_adhoc()}, rownames=FALSE, extensions = 'Buttons', filter = 'top',
+      datatable(df_requ_adhoc(), rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
       options = list(dom = 'Bfrtip',
                      buttons = c('copy', 'excel', 'colvis'),
                      scrollY = 600, scrollX = TRUE,
-                     scroller = TRUE, server = TRUE, pageLength = 400))
+                     scroller = TRUE, server = TRUE, pageLength = nrow(df_requ_adhoc()))) %>%
+        formatStyle(0, target= 'row', lineHeight='80%')})
     
     output$rsa_requ_import <- renderDataTable({
-      df_requ_import()}, rownames=FALSE, extensions = 'Buttons', filter = 'top',
+      datatable(df_requ_import(), rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
       options = list(dom = 'Bfrtip',
                      buttons = c('copy', 'excel', 'colvis'),
                      scrollY = 600, scrollX = TRUE,
-                     scroller = TRUE, server = TRUE, pageLength = 400))
+                     scroller = TRUE, server = TRUE, pageLength = nrow(df_requ_import()))) %>%
+      formatStyle(0, target= 'row', lineHeight='80%')})
     
     custom.message = "function (d) {
 root = d;
