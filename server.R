@@ -402,12 +402,12 @@ output$parc <- sunburstR::renderSunburst({
     
 
    
-
+    encode_xls_csv <- ifelse(grepl('1252', sessionInfo()$locale), 'latin1', 'UTF-8')
       
       output$download11 <- downloadHandler(
         filename = function(){paste0(input$name_down1, '.xls')}, 
         content = function(fname){
-          WriteXLS::WriteXLS(df_requ(), fname)
+          WriteXLS::WriteXLS(df_requ(), fname, Encoding = encode_xls_csv)
         })
       
       output$download12 <- downloadHandler(
@@ -425,7 +425,7 @@ output$parc <- sunburstR::renderSunburst({
       output$download21 <- downloadHandler(
         filename = function(){paste0(input$name_down2, '.xls')}, 
         content = function(fname){
-          WriteXLS::WriteXLS(df_requ_adhoc(), fname)
+          WriteXLS::WriteXLS(df_requ_adhoc(), fname, Encoding = encode_xls_csv)
         })
       
       output$download22 <- downloadHandler(
@@ -443,7 +443,7 @@ output$parc <- sunburstR::renderSunburst({
       output$download51 <- downloadHandler(
         filename = function(){paste0(input$name_down2, '.xls')}, 
         content = function(fname){
-          WriteXLS::WriteXLS(df_requ_import(), fname)
+          WriteXLS::WriteXLS(df_requ_import(), fname, Encoding = encode_xls_csv)
         })
       
       output$download52 <- downloadHandler(
@@ -461,7 +461,7 @@ output$parc <- sunburstR::renderSunburst({
       output$download31 <- downloadHandler(
         filename = function(){paste0(input$name_down3, '.xls')}, 
         content = function(fname){
-          WriteXLS::WriteXLS(dfw(), fname)
+          WriteXLS::WriteXLS(dfw(), fname, Encoding = encode_xls_csv)
         })
       
       output$download32 <- downloadHandler(
@@ -478,7 +478,7 @@ output$parc <- sunburstR::renderSunburst({
       output$download41 <- downloadHandler(
         filename = function(){paste0(input$name_down4, '.xls')}, 
         content = function(fname){
-          WriteXLS::WriteXLS(df(), fname)
+          WriteXLS::WriteXLS(df(), fname, Encoding = encode_xls_csv)
         })
       
       output$download42 <- downloadHandler(
