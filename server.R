@@ -141,30 +141,33 @@ function(input, output) {
   
   
   output$sv <-  renderDataTable({
-    df()$valo %>% epmsi_mco_sv()}, 
+    datatable(df()$valo %>% epmsi_mco_sv(), 
       rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
     options = list(lengthChange = FALSE, dom = 'Bfrtip', pageLength = 12,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 200, scrollX = TRUE,
-                   scroller = TRUE, server = FALSE)
+                   scroller = TRUE, server = FALSE)) %>%
+    formatStyle(0, target= 'row', lineHeight='80%')}
   )
   
   output$rav <-  renderDataTable({
     #%>% select(cle_rsa)
-    df()$valo %>% epmsi_mco_rav() }, rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    datatable(df()$valo %>% epmsi_mco_rav(), rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
     options = list(lengthChange = FALSE, dom = 'Bfrtip', pageLength = 20,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 300, scrollX = TRUE,
-                   scroller = TRUE, server = FALSE)# , server = TRUE
+                   scroller = TRUE, server = FALSE)) %>%
+      formatStyle(0, target= 'row', lineHeight='80%')}
   )
   
   output$rsa <-  renderDataTable({
     #%>% select(cle_rsa)
-    df()$rsa }, rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
+    datatable(df()$rsa, rownames=FALSE, extensions = 'Buttons', filter = 'top', class = 'white-space: nowrap',
     options = list(lengthChange = FALSE, dom = 'Bfrtip',  pageLength = 100,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 600, scrollX = TRUE,
-                   scroller = TRUE, server = FALSE)# , server = TRUE
+                   scroller = TRUE, server = FALSE)) %>%
+      formatStyle(0, target= 'row', lineHeight='80%')}
   )
 
   output$rsa_valo <-  renderDataTable({
@@ -173,7 +176,8 @@ function(input, output) {
     options = list(lengthChange = FALSE, dom = 'Bfrtip', pageLength = 100,
                    buttons = c('copy', 'excel', 'colvis'),
                    scrollY = 600, scrollX = TRUE,
-                   scroller = TRUE, server = FALSE))})
+                   scroller = TRUE, server = FALSE)) %>%
+      formatStyle(0, target= 'row', lineHeight='80%')})
   
    df_requ <- eventReactive(input$lance_r, {
      
@@ -246,7 +250,8 @@ function(input, output) {
   })
   
   
-  output$lib_requ_imports <- renderDataTable(librairie_import())
+  output$lib_requ_imports <- renderDataTable(datatable(librairie_import(), class = 'white-space: nowrap', rownames = FALSE,
+                                                       options = list(dom = 't', scrollX = TRUE, scroller = TRUE)))
   
   # df_requ_adhoc <- eventReactive(input$lance_r2, {
     df_requ_adhoc <- eventReactive(input$lance_r2, {

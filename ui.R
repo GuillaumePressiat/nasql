@@ -24,7 +24,7 @@ for (i in th){
 dashboardPagePlus(
   
 
-  
+
   dashboardHeaderPlus(title= span(tagList(icon("frog"), "Find my NASql")), #titleWidth = 350,   
                       enable_rightsidebar = TRUE,
                       rightSidebarIcon = "gears",
@@ -36,15 +36,17 @@ dashboardPagePlus(
                           id = "mydropdown2",
                           title = "Archives",
                           icon = "file-archive",
-                          
-                          hr(),
+
+                          badgeStatus = "warning",
+                          #hr(),
                           shinyWidgets::actionBttn(
                             inputId = "button_a1",
                             label = "Dézipper",
                             style = "simple", 
                             color = "success", size = "s"
+                            
                           ),
-                          hr(),
+                          #hr(),
                           shinyWidgets::actionBttn(
                             inputId = "button_a0",
                             label = "Clean-up",
@@ -56,6 +58,7 @@ dashboardPagePlus(
                           title = "Imports",
                           icon = "database",
                           
+                          badgeStatus = "primary",
                           hr(),
                           shinyWidgets::actionBttn(
                             inputId = "button_i",
@@ -78,11 +81,11 @@ dashboardPagePlus(
                             choices = c("Non", "Recette BEE", "Recette BEE + suppléments"),
                             selected = "Non", checkbox = TRUE
                           )
-                          
-                          
+ 
                         ),
                         dropdownBlock(
                           id = "help",
+                          badgeStatus = "danger",
                           title = "Aide",
                           icon = "question-circle",
                           hr(),
@@ -95,9 +98,56 @@ dashboardPagePlus(
                           tags$li("b. Étudier les parcours" , icon('procedures')),
                           tags$li("c. Calculer la valorisation" , icon('dollar')),
                           tags$li("d. Exporter les données " , icon('gears'), '>', icon('file-export'))
-                        ))),
+                        ),
+                        dropdownBlock(
+                          id = "nomen",
+                          title = "Nomenclatures",
+                          icon = "sitemap",
+                          badgeStatus = NULL,
+                          appButton(
+                            url = "https://guillaumepressiat.shinyapps.io/oncle_cim/",
+                            label = "CIM",
+                            icon = "fa fa-diagnoses",
+                            enable_badge = FALSE,
+                            badgeColor = NULL,
+                            badgeLabel = NULL
+                          ),
+                          appButton(
+                            url = "https://guillaumepressiat.shinyapps.io/oncle_ccam/",
+                            label = "CCAM",
+                            icon = "fa fa-stethoscope",
+                            enable_badge = FALSE,
+                            badgeColor = NULL,
+                            badgeLabel = NULL
+                          ),
+                          appButton(
+                            url = "https://guillaumepressiat.shinyapps.io/oncle_ghm/",
+                            label = "GHM",
+                            icon = "fa fa-align-justify",
+                            enable_badge = FALSE,
+                            badgeColor = NULL,
+                            badgeLabel = NULL
+                          ),
+                          appButton(
+                            url = "https://guillaumepressiat.shinyapps.io/transcodeur/",
+                            label = "Transcodeur",
+                            icon = "fa fa-code",
+                            enable_badge = FALSE,
+                            badgeColor = NULL,
+                            badgeLabel = NULL
+                          ),
+                          appButton(
+                            url = "https://guillaumepressiat.shinyapps.io/nomensweb/",
+                            label = "Toutes Nomenclatures",
+                            icon = "fa fa-table",
+                            enable_badge = FALSE,
+                            badgeColor = NULL,
+                            badgeLabel = NULL
+                          )))),
+
   
   sidebar = dashboardSidebar(
+
     #width = 350,
     sidebarMenu(
       id="menuchoice",
@@ -106,7 +156,8 @@ dashboardPagePlus(
       #menuItem(icon = icon("mortar-pestle"), text  ="Requête saisie", tabName="app3"),
       menuItem(icon = icon("dollar-sign"), text  = "Valorisation", tabName="app4"),
       menuItem(icon = icon("procedures"), text  = "Parcours", tabName="app5"))),
-      #menuItem(icon = icon("leaf"), text  = "map", tabName="app6"))),
+  #menuItem(icon = icon("sitemap"), text  = "Nomenclatures", tabName="app6")    
+  #menuItem(icon = icon("leaf"), text  = "map", tabName="app6"))),
   
   
   
@@ -143,6 +194,7 @@ dashboardPagePlus(
                                 inputColor = "#3c8dbc"
                               )),
     
+
     rightSidebarTabContent(
       id = 2,
       icon = "upload",
@@ -194,7 +246,9 @@ dashboardPagePlus(
           downloadButton('download43',"csvzip", class = "dowbut"),
           h6('*attention, les exports xls fonctionnent lorsque nrow < 65536...')
         )))),
+  
   dashboardBody(
+    shinybusy::use_busy_spinner(spin = "fading-circle"),
     tags$head(tags$style(HTML('
                                 /* logo */
                                 .skin-blue .main-header   .logo {
@@ -206,7 +260,7 @@ dashboardPagePlus(
                                 }
                                 
                                 .navbar-custom-menu>.navbar-nav>li>.dropdown-menu {
-                                  width:350px;
+                                  width: 350px;
                                   }
                               
                                 .skin-blue .box-header {
@@ -220,6 +274,60 @@ dashboardPagePlus(
                                 
                                 .dowbut{font-size: 10px ;}
                                 
+                                .datatables {
+                                  margin: 2em 0em;
+                                }
+                                
+                                .dataTables_length,
+                                .dataTables_filter,
+                                .dataTables_info,
+                                .dataTables_paginate {
+                                  font-size: 90%;
+                                }
+                                
+                                table{
+                                    border-collapse:collapse;
+                                    border-spacing:0;
+                                    empty-cells:show;
+                                    margin:0;
+                                    border-bottom:1px solid #333399;
+                                }
+                                
+                                td{
+                                    vertical-align:top}
+                                
+                                table td,table th{
+                                    font-size:90%;
+                                    margin:0;
+                                    overflow:visible;
+                                    padding:8px 16px;
+                                    background-color:white;
+                                    border:1px solid #e1e4e5;
+                                }
+                                
+                                table thead th{
+                                    font-weight:bold;
+                                    border-top:3px solid #333399;
+                                    border-bottom:1px solid #333399;
+                                }
+                                
+                                table caption{
+                                    color:#000;
+                                    font:italic 85%/1 arial,sans-serif;
+                                    padding:1em 0;
+                                }
+                                
+                                table tr:nth-child(2n-1) td{
+                                    background-color:#f3f6f6;
+                                }
+                                
+                                table tr:nth-child(2n) td{
+                                    background-color:white;
+                                }
+                                
+                                .dataTables_wrapper {
+                                  overflow-x: auto;
+                                }
                                 /* main sidebar */
                                 .skin-blue .main-sidebar {
                                 background-color: #383838;
@@ -337,8 +445,10 @@ dashboardPagePlus(
                             #shinydashboard::box(sunburstR::sund2bOutput("parc_rsa_sun"),
                             width = 12, solidHeader = TRUE, collapsible = TRUE,
                             collapsed = FALSE, title = 'Parcours', 
-                            status = "primary"))#,
-        #tabItem(tabName = "app6")
-        ))))
+                            status = "primary"))
+
+
+              
+    ))))
 
 

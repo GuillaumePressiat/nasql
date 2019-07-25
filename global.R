@@ -85,9 +85,9 @@ editableDT <- function (input, output, session, dataname = reactive(""), data = 
       validate(need(any(class(try(eval(parse(text = input$result)))) %in% 
                           c("tbl_df", "tibble", "data.frame")), "Please enter the valid data name"))
     }
-    datatable(df(), selection = input$selection, caption = NULL, options = list(dom = 't',
-                                                                                scrollX = TRUE,
-                                                                                scroller = TRUE))
+    datatable(df(), selection = input$selection, caption = NULL, class = 'white-space: nowrap', rownames = FALSE,
+              options = list(dom = 't', scrollX = TRUE, scroller = TRUE))
+      
   })
   observeEvent(input$delRow, {
     ids <- input$origTable_rows_selected
