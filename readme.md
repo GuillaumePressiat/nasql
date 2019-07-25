@@ -1,4 +1,4 @@
-## brouillon d'app shiny pour importer et requêter les rsa sans programmer
+## App shiny pour importer, requêter les rsa sans programmer, puis construire et exporter des requêtes
 
 
 ##### Import des rsa facilité
