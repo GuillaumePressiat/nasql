@@ -540,6 +540,7 @@ output$parc <- sunburstR::renderSunburst({
             }
           })
           
+          shinyjs::hide('mydata')
 }
 
 

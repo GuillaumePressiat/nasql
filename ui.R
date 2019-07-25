@@ -398,6 +398,7 @@ dashboardPagePlus(
                     accordionItem(
                       id = 2,
                       title = "Requêtes via saisie",
+                      useShinyjs(),
                       textInput('mydata', label = 'Nom de la table', value = 'listes_api'),
                       # h5("Saisie / édition d'une requête"),
                       editableDTUI("table1"),
