@@ -36,14 +36,6 @@ dico_l <- get_dictionnaire_listes()
 # 
 # listes_api <- struc_listes()
 # 
-listes_api$nom <- "Requête Exemple"
-listes_api$abrege <- "exemple"
-listes_api$thematique <- "Thématique de l'exemple"
-listes_api$actes <- "EBLA003, EPLF002"
-listes_api$diags <- "E66"
-listes_api$positions_diags <- "toutes"
-listes_api$ghm_exclus <- "05K"
-listes_api$agemin <- "16"
 
 listes_api <- as_tibble(matrix("", 1, 25), .name_repair = "universal")
 
@@ -89,6 +81,8 @@ listes_api$diags <- "E66"
 listes_api$positions_diags <- "toutes"
 listes_api$ghm_exclus <- "05K"
 listes_api$agemin <- "16"
+
+
 
 editableDTUI <- function (id) 
 {

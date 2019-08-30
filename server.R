@@ -3,7 +3,7 @@
 
 function(input, output) { 
   
-  listes_api <- struc_listes()
+  # listes_api <- struc_listes()
   
   
   l <- observeEvent(input$button_a1,{
