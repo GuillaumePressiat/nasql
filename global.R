@@ -23,23 +23,68 @@ options(gsubfn.engine = "R")
 dico_l <- get_dictionnaire_listes()
 # get_table('dictionnaire_listes')
 
-struc_listes <- function(){
-  listes_api <- purrr::map(dico_l$nom_abrege, function(x){get_liste(x)}) %>%
-    purrr::map_depth(1, names) %>%
-    unlist() %>%
-    unique()
-  
-  temp <- matrix("", ncol = length(listes_api))
-  colnames(temp) <- listes_api
-  as_tibble(temp)
-}
+# struc_listes <- function(){
+#   listes_api <- purrr::map(dico_l$nom_abrege, function(x){get_liste(x)}) %>%
+#     purrr::map_depth(1, names) %>%
+#     unlist() %>%
+#     unique()
+#   
+#   temp <- matrix("", ncol = length(listes_api))
+#   colnames(temp) <- listes_api
+#   as_tibble(temp)
+# }
+# 
+# listes_api <- struc_listes()
+# 
+listes_api$nom <- "Requête Exemple"
+listes_api$abrege <- "exemple"
+listes_api$thematique <- "Thématique de l'exemple"
+listes_api$actes <- "EBLA003, EPLF002"
+listes_api$diags <- "E66"
+listes_api$positions_diags <- "toutes"
+listes_api$ghm_exclus <- "05K"
+listes_api$agemin <- "16"
 
-listes_api <- struc_listes()
+listes_api <- as_tibble(matrix("", 1, 25), .name_repair = "universal")
+
+names(listes_api) <- c("nom",
+  "abrege",
+  "thematique",
+  "agemin",
+  "agemax",
+  "agejrmin",
+  "agejrmax",
+  "poidsmin",
+  "poidsmax",
+  "dureemin",
+  "dureemax",
+  "autres",
+  "ghm",
+  "ghm_exclus",
+  "diags",
+  "diags_exclus",
+  "positions_diags",
+  "actes",
+  "date_saisie",
+  "commentaire",
+  "date_mise_a_jour",
+  "auteur",
+  "references",
+  "url",
+  "timestamp")
+
+class(listes_api$date_saisie) <- 'date'
+class(listes_api$date_mise_a_jour) <- 'date'
+listes_api$date_saisie <- Sys.Date()
+listes_api$date_mise_a_jour <- Sys.Date()
+listes_api$timestamp <- as.integer(Sys.time())
 
 listes_api$nom <- "Requête Exemple"
 listes_api$abrege <- "exemple"
 listes_api$thematique <- "Thématique de l'exemple"
 listes_api$actes <- "EBLA003, EPLF002"
+listes_api$dureemin <- 15
+
 listes_api$diags <- "E66"
 listes_api$positions_diags <- "toutes"
 listes_api$ghm_exclus <- "05K"
