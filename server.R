@@ -101,7 +101,7 @@ function(input, output) {
             
           
           r$valo <- vvr_mco(
-            vvr_ghs_supp(rsa = vrsa, ano =  vano, tarifs = tarifs_ghs),
+            vvr_ghs_supp(rsa = vrsa, ano =  vano, tarifs = tarifs_ghs, cgeo = 1L),
             vvr_mco_sv(vrsa, vano)
           ) %>% 
             inner_join(r$rsa %>% select(cle_rsa, nas, nohop))
@@ -122,7 +122,8 @@ function(input, output) {
               
               r$valo <- vvr_mco(
                 vvr_ghs_supp(rsa = vrsa, ano =  vano, tarifs = tarifs_ghs,
-                             supplements = get_table('tarifs_mco_supplements'), bee = FALSE, full = TRUE),
+                             supplements = get_table('tarifs_mco_supplements') %>%
+                               select(-cgeo), bee = FALSE, full = TRUE, cgeo = 1L),
                 vvr_mco_sv(vrsa, vano)) %>%  # , porg = ipo(p)
                 inner_join(r$rsa %>% select(cle_rsa, nas, nohop))
             })

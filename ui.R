@@ -172,9 +172,12 @@ dashboardPagePlus(
                               selectInput("annee", "Selection de l'année", choices = setNames(2016:2019, 2016:2019), selected = 2018),
                               selectInput("mois", "Mois de remontée", choices = setNames(1:12, 1:12), selected = 12),
                               
-                              selectInput("finess", "Finess", choices = setNames(c("750712184", 
-                                                                                   "920100013", "750803447"), c("750712184", 
-                                                                                                   "920100013", "750803447")), selected = 1),
+      selectInput("finess", "Finess", choices = setNames(c("290000017", 
+                                                           "750712184", 
+                                                           "920100013"), c("290000017",
+                                                                           "750712184", 
+                                                                           "920100013")), selected = 1),
+      
                               #selectInput("finess", "Finess", choices = list("750712184"), selected = 1),
                               textInput("path", "path", '~/Documents/data/mco'),
                               
