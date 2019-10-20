@@ -386,7 +386,7 @@ output$parc <- sunburstR::renderSunburst({
     as.data.frame()
   
   u %>%
-    sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200))
+    sunburstR::sunburst(width = "80%", explanation = custom.message, legend = list(w = 200, h = 20))
 })
 
 
